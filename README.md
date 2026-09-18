@@ -1,139 +1,108 @@
+# MalluFlix No-Search Addon
 
-
-
-# 🎬 MalluFlix – Malayalam Movie Catalog Addon for Stremio
-
-MalluFlix is a lightweight **Malayalam-only discovery addon** for Stremio.
-It uses TMDB for identifying Malayalam films and Cinemeta for official Stremio-compatible metadata, allowing other streaming addons to automatically attach available streams.
-
-> **MalluFlix does NOT host, store, or distribute any video content.**
+A modified version of MalluFlix that **removes global search participation** while keeping all catalogs available in Discover/Home.
 
 ---
 
-## ✨ Features
+## 🎯 Purpose
 
-* 🇮🇳 Malayalam-only movie catalog
-* 🔍 Powered by TMDB language discovery
-* 🔗 Fully compatible with all Stremio streaming addons
-* ⚡ Infinite scroll with stable pagination
-* 🧠 Automatic IMDb ID resolution for ecosystem-native behavior
-* 🚫 No scraping, no illegal content, no file hosting
+This version is designed for:
 
----
-
-## 🧱 How It Works
-
-```
-Stremio App
-    ↓
-MalluFlix Addon
-    ↓
-TMDB (find Malayalam movies)
-    ↓
-IMDb ID mapping
-    ↓
-Cinemeta (official Stremio metadata)
-    ↓
-Other Streaming Addons attach streams automatically
-```
-
-MalluFlix only provides **catalog & metadata**, never streams.
+- Nuvio Companion users
+- Stremio users who want cleaner search results
+- Avoiding clutter from MalluFlix catalogs in global search
 
 ---
 
-## 🛠 Installation
+## ✅ What’s Changed
 
-1. Clone the repository
-2. Install dependencies:
+- ❌ Removed `search` capability from all catalogs
+- ✅ Kept all catalogs (New Releases, OTT, Genres, etc.)
+- ✅ Works normally in Discover/Home
+- ✅ Fully compatible with Stremio / Nuvio
 
-```bash
-npm install
-```
+---
 
-3. Add your TMDB API key in the source file:
+## ⚙️ How It Works
+
+The original addon declares:
 
 ```js
-const TMDB_KEY = "YOUR_TMDB_API_KEY";
-```
+extra: [{ name: "search" }, { name: "skip" }]
 
-4. Start the addon:
+This version changes it to:
 
-```bash
-node index.js
-```
+extra: [{ name: "skip" }]
 
-5. Open in browser:
+So the addon:
 
-```
-http://localhost:7000/manifest.json
-```
+❌ Does NOT appear in search results
+✅ Still shows all catalogs
 
-6. Install it into Stremio.
-``` 
-https://malluflix-forzayt-stremio.onrender.com/
-```
+🚀 Installation
+Option 1 — Direct Install
 
+Paste this into Stremio / Nuvio:
 
-## 📦 Endpoints
+https://malluflix-nosearch.onrender.com/manifest.json
+🧪 Test Before Installing
 
-| Endpoint                                | Purpose                     |
-| --------------------------------------- | --------------------------- |
-| `/manifest.json`                        | Addon metadata              |
-| `/catalog/movie/malluflix_catalog.json` | Malayalam movie list        |
-| `/meta/movie/{imdb_id}.json`            | Movie metadata via Cinemeta |
+Open in browser:
 
----
+https://malluflix-nosearch.onrender.com/manifest.json
 
-## ⚖ Legal Disclaimer
+Check that catalogs contain:
 
-MalluFlix:
+"extra": [{ "name": "skip" }]
 
-* ❌ Does NOT host or distribute copyrighted media
-* ❌ Does NOT scrape or index illegal sources
-* ❌ Does NOT provide streaming URLs
-* ✅ Only aggregates **public metadata**
-* ✅ Uses official APIs (TMDB, Cinemeta)
+NOT:
 
-All trademarks, movie posters, and metadata belong to their respective owners.
+"extra": [{ "name": "search" }, { "name": "skip" }]
+🛠 Deployment (for developers)
+Clone repo
+Install dependencies:
+npm install
 
-The user is solely responsible for any third-party addons they install alongside MalluFlix.
+Start server:
+npm start
+🔐 Environment Variables
+TMDB_KEY=your_tmdb_api_key
+⚠️ Disclaimer
 
----
+This project is a modification of the original MalluFlix addon.
 
-## 🧑‍⚖ Responsibility
+This repository does not host or distribute content
+It only modifies addon behavior
+Use at your own responsibility
+🙌 Credits
 
-This project exists only as a **catalog & metadata enhancer**.
+Original MalluFlix developers
+Modified by: YOUR_NAME
 
-Any media streams displayed inside Stremio are supplied by **external addons** that the user installs separately.
-MalluFlix has **no control over third-party stream sources**.
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome.
-
-Suggested improvements:
-
-* Malayalam keyword detection refinement
-* Local caching
-* Performance optimizations
+📌 Version
+v3.0.1
 
 ---
 
-## 🧠 Credits
+# ✅ 2. Prepare for Stremio Addon Submission
 
-* [TMDB](https://www.themoviedb.org/)
-* [Stremio Cinemeta](https://github.com/Stremio/stremio-addons)
-* Stremio Addon SDK
+Stremio requires:
+
+### ✔️ Must have:
+- Public GitHub repo ✅ (you have)
+- Hosted manifest ✅ (Render)
+- Working endpoint:
+
+/manifest.json
+
 
 ---
 
-## ❤️ Support
+## 🔗 Add these to README (important)
 
-If you enjoy this project, you can support development via
-**Buy Me A Coffee** ☕ on the [website](https://malluflix-forzayt-stremio.onrender.com/).
+At top of README, add:
 
----
+```md
+## 🔌 Install Addon
 
-
+👉 https://malluflix-nosearch.onrender.com/manifest.json
