@@ -46,6 +46,7 @@ Option 1 — Direct Install
 Paste this into Stremio / Nuvio:
 
 https://malluflix-nosearch.onrender.com/manifest.json
+
 🧪 Test Before Installing
 
 Open in browser:
@@ -59,15 +60,8 @@ Check that catalogs contain:
 NOT:
 
 "extra": [{ "name": "search" }, { "name": "skip" }]
-🛠 Deployment (for developers)
-Clone repo
-Install dependencies:
-npm install
 
-Start server:
-npm start
-🔐 Environment Variables
-TMDB_KEY=your_tmdb_api_key
+
 ⚠️ Disclaimer
 
 This project is a modification of the original MalluFlix addon.
@@ -78,32 +72,8 @@ Use at your own responsibility
 🙌 Credits
 
 Original MalluFlix developers
-Modified by: YOUR_NAME
+Modified by: https://github.com/datainterpretor
 
 📌 Version
 v3.0.1
 
----
-
-# ✅ 2. Prepare for Stremio Addon Submission
-
-Stremio requires:
-
-### ✔️ Must have:
-- Public GitHub repo ✅ (you have)
-- Hosted manifest ✅ (Render)
-- Working endpoint:
-
-/manifest.json
-
-
----
-
-## 🔗 Add these to README (important)
-
-At top of README, add:
-
-```md
-## 🔌 Install Addon
-
-👉 https://malluflix-nosearch.onrender.com/manifest.json
