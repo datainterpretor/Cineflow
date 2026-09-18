@@ -33,6 +33,7 @@ extra: [{ name: "search" }, { name: "skip" }]
 This version changes it to:
 
 extra: [{ name: "skip" }]
+```
 
 So the addon:
 
