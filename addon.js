@@ -37,9 +37,9 @@ try {
 const hasUrl = urlsData && urlsData.url && urlsData.url.trim() !== "";
 
 const manifest = {
-    id: "org.mallu.flix",
-    version: "3.0.1",
-    name: "MalluFlix",
+    id: "org.cineflow.addon",
+    version: "1.0.1",
+    name: "Cineflow",
     description: "Malayalam movie catalog using TMDB discovery + Cinemeta compatibility",
     logo: "https://forzayt.github.io/MalluFlix_stremio_addon/images/logo.jpg",
     resources: ["catalog", "meta", "stream"],
