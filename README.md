@@ -48,36 +48,6 @@ https://cineflow-8w0j.onrender.com/manifest.json
 
 Cineflow does not declare a `search` capability. This is intentional: its catalogs remain available for browsing, while the addon does not participate in global text searches.
 
-## Website
-
-The project also contains a static landing page in `index.html`.
-
-The website can be hosted separately using **GitHub Pages**. GitHub Pages only hosts the static website; the Stremio addon itself continues to run on the addon server.
-
-## Development
-
-### Requirements
-
-- Node.js
-- npm
-
-### Install dependencies
-
-```bash
-npm install
-```
-
-### Run locally
-
-```bash
-npm start
-```
-
-The local addon will normally be available at:
-
-```text
-http://localhost:7000/manifest.json
-```
 
 ## Configuration
 
