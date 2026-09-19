@@ -41,7 +41,7 @@ const manifest = {
     version: "1.0.1",
     name: "Cineflow",
     description: "Malayalam movie catalog using TMDB discovery + Cinemeta compatibility",
-    logo: "https://forzayt.github.io/MalluFlix_stremio_addon/images/logo.jpg",
+    logo: "https://github.com/datainterpretor/Cineflow/blob/main/cineflow.png",
     resources: ["catalog", "meta", "stream"],
     types: ["movie"],
     catalogs: [
