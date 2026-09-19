@@ -1,4 +1,4 @@
-# MalluFlix No-Search Addon
+# Cineflow Addon
 
 A modified version of MalluFlix that **removes global search participation** while keeping all catalogs available in Discover/Home.
 
@@ -45,13 +45,13 @@ Option 1 — Direct Install
 
 Paste this into Stremio / Nuvio:
 
-https://malluflix-nosearch.onrender.com/manifest.json
+https://cineflow-8w0j.onrender.com/manifest.json
 
 🧪 Test Before Installing
 
 Open in browser:
 
-https://malluflix-nosearch.onrender.com/manifest.json
+https://cineflow-8w0j.onrender.com/manifest.json
 
 Check that catalogs contain:
 
