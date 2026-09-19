@@ -1,67 +1,94 @@
-# Cineflow Addon
+# Cineflow
 
-A modified version of MalluFlix that **removes global search participation** while keeping all catalogs available in Discover/Home.
+Cineflow is a Stremio addon focused on Malayalam movies. It provides Malayalam movie catalogs such as new releases, OTT releases, future releases, and genre-based catalogs.
 
----
+Cineflow is designed to work with **Stremio** and **Nuvio Companion**.
 
-## 🎯 Purpose
+## Features
 
-This version is designed for:
+- Malayalam movie catalogs
+- New Releases
+- OTT Released
+- Future Releases
+- Genre catalogs
+- TMDB-powered movie discovery
+- Cinemeta-compatible movie metadata
+- Optional direct-stream catalog when configured
+- Does **not** advertise global search support, so Cineflow catalogs are not requested as search results by clients such as Nuvio
 
-- Nuvio Companion users
-- Stremio users who want cleaner search results
-- Avoiding clutter from MalluFlix catalogs in global search
+## Installation
 
----
+### Stremio
 
-## ✅ What’s Changed
+1. Open Stremio.
+2. Open the **Addons** section.
+3. Choose **Add addon** / **Install from URL**.
+4. Paste the Cineflow manifest URL:
 
-- ❌ Removed `search` capability from all catalogs
-- ✅ Kept all catalogs (New Releases, OTT, Genres, etc.)
-- ✅ Works normally in Discover/Home
-- ✅ Fully compatible with Stremio / Nuvio
-
----
-
-## ⚙️ How It Works
-
-The original addon declares:
-
-```js
-extra: [{ name: "search" }, { name: "skip" }]
-
-This version changes it to:
-
-extra: [{ name: "skip" }]
+```text
+https://cineflow-8w0j.onrender.com/manifest.json
 ```
 
-So the addon:
+5. Install the addon.
+6. Open **Discover** and select the Cineflow catalogs.
 
-❌ Does NOT appear in search results
-✅ Still shows all catalogs
+### Nuvio Companion
 
-🚀 Installation
-Option 1 — Direct Install
+1. Open Nuvio Companion.
+2. Open **Addons**.
+3. Choose the option to add an addon by URL.
+4. Paste:
 
-Paste this into Stremio / Nuvio:
-
+```text
 https://cineflow-8w0j.onrender.com/manifest.json
+```
 
-🧪 Test Before Installing
+5. Install Cineflow.
+6. Cineflow catalogs can then be used from the catalog/discover sections.
 
+Cineflow does not declare a `search` capability. This is intentional: its catalogs remain available for browsing, while the addon does not participate in global text searches.
 
-⚠️ Disclaimer
+## Website
 
-This project is a modification of the original MalluFlix addon.
+The project also contains a static landing page in `index.html`.
 
-This repository does not host or distribute content
-It only modifies addon behavior
-Use at your own responsibility
-🙌 Credits
+The website can be hosted separately using **GitHub Pages**. GitHub Pages only hosts the static website; the Stremio addon itself continues to run on the addon server.
 
-Original MalluFlix developers
-Modified by: https://github.com/datainterpretor
+## Development
 
-📌 Version
-v1.0.0
+### Requirements
 
+- Node.js
+- npm
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Run locally
+
+```bash
+npm start
+```
+
+The local addon will normally be available at:
+
+```text
+http://localhost:7000/manifest.json
+```
+
+## Configuration
+
+The addon uses a TMDB API key for movie discovery. For deployment, keep the API key outside the public repository and provide it through the server environment.
+
+## Disclaimer
+
+Cineflow is an addon project. This repository does not host or distribute movie files. Availability of metadata or streams depends on the configured services and sources.
+
+## Credits
+
+Based on the original MalluFlix addon structure.
+
+Modified and maintained as Cineflow by [datainterpretor](https://github.com/datainterpretor).
