@@ -3,7 +3,9 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 
-const TMDB_KEY = "f9c647e90d881403fa2569b88fc3bc79";
+// Keep your TMDB API key OUT of GitHub.
+// Set TMDB_KEY as an environment variable on Render.
+const TMDB_KEY = process.env.TMDB_KEY || "";
 
 if (!TMDB_KEY) {
     console.warn("WARNING: TMDB_KEY environment variable is not set.");
@@ -52,7 +54,7 @@ const hasUrl =
 
 const manifest = {
     id: "org.cineflow.addon",
-    version: "1.0.0",
+    version: "1.1.0",
     name: "Cineflow",
     description:
         "Cineflow — Malayalam movie catalog powered by TMDB with Cinemeta compatibility",
@@ -79,7 +81,7 @@ const manifest = {
         {
             type: "movie",
             id: "malluflix_catalog",
-            name: "Now Running",
+            name: "Cineflow New Releases",
             extra: [
                 {
                     name: "skip"
@@ -93,7 +95,7 @@ const manifest = {
         {
             type: "movie",
             id: "malluflix_ott",
-            name: "OTT Released",
+            name: "Cineflow OTT Released",
             extra: [
                 {
                     name: "skip"
@@ -107,7 +109,7 @@ const manifest = {
         {
             type: "movie",
             id: "malluflix_future",
-            name: " Future Releases",
+            name: "Cineflow future releases-Movies",
             extra: [
                 {
                     name: "skip"
@@ -418,10 +420,46 @@ builder.defineCatalogHandler(
         const responses =
             await Promise.all(promises);
 
-        const results =
+        let results =
             responses.flatMap(
                 r => r.results || []
             );
+
+        // ----------------------------------------------------
+        // STRICT RELEASE-DATE FILTER
+        // ----------------------------------------------------
+        // TMDB can return entries with missing/inconsistent release
+        // dates. Enforce the catalog rule locally as a final guard:
+        // - Future catalog: only movies with a release date AFTER today
+        // - Every other catalog: only movies released ON or BEFORE today
+        // This prevents unreleased movies from leaking into New Releases,
+        // OTT, or Genre catalogs.
+        const isFutureCatalog = id === "malluflix_future";
+
+        results = results.filter(movie => {
+            const releaseDate = movie.primary_release_date;
+
+            // Movies without a primary release date are not treated as
+            // released, so they must not appear outside the Future catalog.
+            if (!releaseDate) {
+                return false;
+            }
+
+            return isFutureCatalog
+                ? releaseDate > today
+                : releaseDate <= today;
+        });
+
+        // Remove duplicate TMDB entries caused by fetching overlapping
+        // pagination windows (page, page + 1, page + 2).
+        const seenTmdbIds = new Set();
+        results = results.filter(movie => {
+            if (seenTmdbIds.has(movie.id)) {
+                return false;
+            }
+            seenTmdbIds.add(movie.id);
+            return true;
+        });
 
         // ----------------------------------------------------
         // CONVERT TMDB → IMDb
