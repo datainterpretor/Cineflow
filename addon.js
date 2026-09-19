@@ -75,19 +75,6 @@ const manifest = {
 
     catalogs: [
 
-        // ----------------------------------------------------
-        // NEW RELEASES
-        // ----------------------------------------------------
-        {
-            type: "movie",
-            id: "malluflix_catalog",
-            name: "Cineflow New Releases",
-            extra: [
-                {
-                    name: "skip"
-                }
-            ]
-        },
 
         // ----------------------------------------------------
         // OTT RELEASED
@@ -95,7 +82,7 @@ const manifest = {
         {
             type: "movie",
             id: "malluflix_ott",
-            name: "Cineflow OTT Released",
+            name: "Latest Releases",
             extra: [
                 {
                     name: "skip"
