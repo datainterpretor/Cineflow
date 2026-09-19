@@ -49,18 +49,6 @@ https://cineflow-8w0j.onrender.com/manifest.json
 
 🧪 Test Before Installing
 
-Open in browser:
-
-https://cineflow-8w0j.onrender.com/manifest.json
-
-Check that catalogs contain:
-
-"extra": [{ "name": "skip" }]
-
-NOT:
-
-"extra": [{ "name": "search" }, { "name": "skip" }]
-
 
 ⚠️ Disclaimer
 
@@ -75,5 +63,5 @@ Original MalluFlix developers
 Modified by: https://github.com/datainterpretor
 
 📌 Version
-v3.0.1
+v1.0.0
 
