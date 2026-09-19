@@ -5,7 +5,7 @@ const path = require("path");
 
 // Keep your TMDB API key OUT of GitHub.
 // Set TMDB_KEY as an environment variable on Render.
-const TMDB_KEY = "f9c647e90d881403fa2569b88fc3bc79";
+const TMDB_KEY = "a2279c83b3ede2046ae078c381086908";
 
 if (!TMDB_KEY) {
     console.warn("WARNING: TMDB_KEY environment variable is not set.");
