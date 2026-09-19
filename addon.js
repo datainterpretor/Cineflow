@@ -79,7 +79,7 @@ const manifest = {
         {
             type: "movie",
             id: "malluflix_catalog",
-            name: "Cineflow New Releases",
+            name: "Now Running",
             extra: [
                 {
                     name: "skip"
@@ -93,7 +93,7 @@ const manifest = {
         {
             type: "movie",
             id: "malluflix_ott",
-            name: "Cineflow OTT Released",
+            name: "OTT Released",
             extra: [
                 {
                     name: "skip"
@@ -107,7 +107,7 @@ const manifest = {
         {
             type: "movie",
             id: "malluflix_future",
-            name: "Cineflow Future Releases",
+            name: " Future Releases",
             extra: [
                 {
                     name: "skip"
