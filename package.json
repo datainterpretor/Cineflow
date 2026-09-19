@@ -1,7 +1,7 @@
 {
-  "name": "cineflow-addon",
-  "version": "1.1.0",
-  "description": "Cineflow Malayalam movie catalog addon for Stremio and Nuvio",
+  "name": "malluflix-addon",
+  "version": "1.0.0",
+  "description": "Base Stremio addon for MalluFlix",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
