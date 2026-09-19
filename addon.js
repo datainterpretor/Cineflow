@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 
-const TMDB_KEY = process.env.TMDB_KEY;
+const TMDB_KEY = a2279c83b3ede2046ae078c381086908;
 
 if (!TMDB_KEY) {
   console.warn("WARNING: TMDB_KEY environment variable is not set.");
