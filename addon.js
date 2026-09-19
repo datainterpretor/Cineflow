@@ -3,8 +3,6 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 
-// Keep your TMDB API key OUT of GitHub.
-// Set TMDB_KEY as an environment variable on Render.
 const TMDB_KEY = "f9c647e90d881403fa2569b88fc3bc79";
 
 if (!TMDB_KEY) {
