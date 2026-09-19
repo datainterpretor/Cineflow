@@ -3,7 +3,13 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 
-const TMDB_KEY = "b8e31efed6de570178942a39601e84b0";
+// Keep your TMDB API key OUT of GitHub.
+// Set TMDB_KEY as an environment variable on Render.
+const TMDB_KEY = process.env.TMDB_KEY;
+
+if (!TMDB_KEY) {
+    console.warn("WARNING: TMDB_KEY environment variable is not set.");
+}
 
 const GENRES = {
     "Action": 28,
@@ -26,221 +32,565 @@ const GENRES = {
 // Check if urls.json has a valid URL
 const urlsPath = path.join(__dirname, "urls.json");
 let urlsData = {};
+
 try {
     if (fs.existsSync(urlsPath)) {
-        urlsData = JSON.parse(fs.readFileSync(urlsPath, "utf8"));
+        urlsData = JSON.parse(
+            fs.readFileSync(urlsPath, "utf8")
+        );
     }
 } catch (e) {
-    console.error("Error reading urls.json", e);
+    console.error("Error reading urls.json:", e);
 }
 
-const hasUrl = urlsData && urlsData.url && urlsData.url.trim() !== "";
+const hasUrl =
+    urlsData &&
+    urlsData.url &&
+    urlsData.url.trim() !== "";
+
+// ============================================================
+// CINEFLOW MANIFEST
+// ============================================================
 
 const manifest = {
     id: "org.cineflow.addon",
-    version: "1.0.1",
+    version: "1.0.0",
     name: "Cineflow",
-    description: "Malayalam movie catalog using TMDB discovery + Cinemeta compatibility",
-    logo: "https://github.com/datainterpretor/Cineflow/blob/main/cineflow.png",
-    resources: ["catalog", "meta", "stream"],
-    types: ["movie"],
+    description:
+        "Cineflow — Malayalam movie catalog powered by TMDB with Cinemeta compatibility",
+
+    // Direct image URL from GitHub repository
+    logo:
+        "https://raw.githubusercontent.com/datainterpretor/Cineflow/main/cineflow.png",
+
+    resources: [
+        "catalog",
+        "meta",
+        "stream"
+    ],
+
+    types: [
+        "movie"
+    ],
+
     catalogs: [
+
+        // ----------------------------------------------------
+        // NEW RELEASES
+        // ----------------------------------------------------
         {
             type: "movie",
             id: "malluflix_catalog",
-            name: "MalluFlix New Releases",
-            extra: [{ name: "skip" }]
+            name: "Cineflow New Releases",
+            extra: [
+                {
+                    name: "skip"
+                }
+            ]
         },
+
+        // ----------------------------------------------------
+        // OTT RELEASED
+        // ----------------------------------------------------
         {
             type: "movie",
             id: "malluflix_ott",
-            name: "MalluFlix OTT Released",
-            extra: [{ name: "skip" }]
+            name: "Cineflow OTT Released",
+            extra: [
+                {
+                    name: "skip"
+                }
+            ]
         },
+
+        // ----------------------------------------------------
+        // FUTURE RELEASES
+        // ----------------------------------------------------
         {
             type: "movie",
             id: "malluflix_future",
-            name: "MalluFlix Future Releases",
-            extra: [{ name: "skip" }]
+            name: "Cineflow Future Releases",
+            extra: [
+                {
+                    name: "skip"
+                }
+            ]
         },
+
+        // ----------------------------------------------------
+        // GENRE CATALOGS
+        // ----------------------------------------------------
         ...Object.keys(GENRES).map(name => ({
             type: "movie",
-            id: `malluflix_genre_${name.toLowerCase().replace(/\s+/g, '_')}`,
-            name: `MalluFlix ${name}`,
-            extra: [{ name: "skip" }]
+            id: `malluflix_genre_${name
+                .toLowerCase()
+                .replace(/\s+/g, "_")}`,
+            name: `Cineflow ${name}`,
+            extra: [
+                {
+                    name: "skip"
+                }
+            ]
         })),
-        ...(hasUrl ? [{
-            type: "movie",
-            id: "malluflix_streams",
-            name: "MalluFlix Direct Streams",
-            extra: [{ name: "skip" }]
-        }] : [])
+
+        // ----------------------------------------------------
+        // OPTIONAL DIRECT STREAM
+        // ----------------------------------------------------
+        ...(hasUrl
+            ? [
+                  {
+                      type: "movie",
+                      id: "malluflix_streams",
+                      name: "Cineflow Direct Streams",
+                      extra: [
+                          {
+                              name: "skip"
+                          }
+                      ]
+                  }
+              ]
+            : [])
     ],
-    idPrefixes: ["tt", "malluflix_"]
+
+    // IMPORTANT:
+    // These are internal IDs. Keep them unchanged for now.
+    idPrefixes: [
+        "tt",
+        "malluflix_"
+    ]
 };
 
 const builder = new addonBuilder(manifest);
 
-const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+// ============================================================
+// CACHE
+// ============================================================
+
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
 const cache = new Map();
 
 async function fetchWithCache(url, config = {}) {
-    const key = url + JSON.stringify(config.params || {});
+
+    const key =
+        url +
+        JSON.stringify(config.params || {});
+
     const cached = cache.get(key);
 
-    if (cached && (Date.now() - cached.timestamp < CACHE_EXPIRY)) {
+    if (
+        cached &&
+        Date.now() - cached.timestamp < CACHE_EXPIRY
+    ) {
         console.log(`Cache hit for: ${url}`);
         return cached.data;
     }
 
     console.log(`Cache miss for: ${url}. Fetching...`);
-    const response = await axios.get(url, config);
+
+    const response = await axios.get(
+        url,
+        config
+    );
+
     cache.set(key, {
         data: response.data,
         timestamp: Date.now()
     });
+
     return response.data;
 }
 
-/* Convert TMDB → IMDb ID */
+// ============================================================
+// TMDB → IMDb ID
+// ============================================================
+
 async function tmdbToImdb(tmdbId) {
+
+    if (!TMDB_KEY) {
+        console.error(
+            "TMDB_KEY is missing. Cannot convert TMDB ID to IMDb ID."
+        );
+
+        return null;
+    }
+
     try {
+
         const data = await fetchWithCache(
             `https://api.themoviedb.org/3/movie/${tmdbId}/external_ids`,
-            { params: { api_key: TMDB_KEY } }
+            {
+                params: {
+                    api_key: TMDB_KEY
+                }
+            }
         );
+
         return data.imdb_id;
-    } catch {
+
+    } catch (error) {
+
+        console.error(
+            `Failed to get IMDb ID for TMDB ${tmdbId}:`,
+            error.message
+        );
+
         return null;
     }
 }
 
-/* Malayalam Catalog */
-builder.defineCatalogHandler(async ({ type, id, extra }) => {
-    if (id === "malluflix_streams") {
-        if (!hasUrl) return { metas: [] };
-        return {
-            metas: [{
-                id: "malluflix_direct_stream",
-                type: "movie",
-                name: "MalluFlix Direct Stream",
-                poster: "https://forzayt.github.io/MalluFlix_stremio_addon/images/logo.jpg",
-                description: "Direct play from urls.json"
-            }]
-        };
-    }
+// ============================================================
+// CINEFLOW CATALOG
+// ============================================================
 
-    const isGenreCatalog = id.startsWith("malluflix_genre_");
-    if (type !== "movie" || (!["malluflix_catalog", "malluflix_ott", "malluflix_future"].includes(id) && !isGenreCatalog)) return { metas: [] };
+builder.defineCatalogHandler(
+    async ({ type, id, extra }) => {
 
-    const skip = extra?.skip ? parseInt(extra.skip) : 0;
-    const page = Math.round(skip / 20) + 1;
-    const today = new Date().toISOString().split('T')[0];
+        // ----------------------------------------------------
+        // DIRECT STREAM CATALOG
+        // ----------------------------------------------------
 
-    const params = {
-        api_key: TMDB_KEY,
-        with_original_language: "ml",
-        sort_by: "primary_release_date.desc",
-    };
+        if (id === "malluflix_streams") {
 
-    if (id === "malluflix_ott") {
-        // Filter for Digital releases (4) in India
-        params["release_date.lte"] = today;
-        params.with_release_type = "4|5"; // 4 = Digital, 5 = Physical
-        params.region = "IN";
-        params.sort_by = "release_date.desc";
-    } else if (id === "malluflix_future") {
-        // Filter for Future releases (greater than today)
-        params["primary_release_date.gte"] = today;
-        params.sort_by = "primary_release_date.asc"; // Show soonest releases first
-    } else if (isGenreCatalog) {
-        // Extract genre name from ID and find corresponding ID
-        const genreName = id.replace("malluflix_genre_", "");
-        const genreId = Object.entries(GENRES).find(([name]) => name.toLowerCase().replace(/\s+/g, '_') === genreName)?.[1];
-        
-        if (genreId) {
-            params["primary_release_date.lte"] = today;
-            params.with_genres = genreId.toString();
-            params.sort_by = "primary_release_date.desc";
-        }
-    } else {
-        // Default: All Malayalam releases
-        params["primary_release_date.lte"] = today;
-        params.sort_by = "primary_release_date.desc";
-    }
-
-    // Fetch 3 pages to ensure sufficient content
-    const promises = [page, page + 1, page + 2].map(p =>
-        fetchWithCache("https://api.themoviedb.org/3/discover/movie", {
-            params: { ...params, page: p }
-        })
-    );
-
-    const responses = await Promise.all(promises);
-    const results = responses.flatMap(r => r.results || []);
-
-    // Process items in chunks to avoid hitting API rate limits (429)
-    const batchSize = 5;
-    const validMetas = [];
-
-    for (let i = 0; i < results.length; i += batchSize) {
-        const chunk = results.slice(i, i + batchSize);
-        const chunkPromises = chunk.map(async (m) => {
-            const imdb = await tmdbToImdb(m.id);
-            if (!imdb) return null;
-            return {
-                id: imdb,
-                type: "movie",
-                name: m.title,
-                poster: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
-                description: m.overview
-            };
-        });
-
-        const chunkResults = await Promise.all(chunkPromises);
-        validMetas.push(...chunkResults.filter(m => m !== null));
-    }
-
-    return { metas: validMetas };
-});
-
-/* Cinemeta Metadata */
-builder.defineMetaHandler(async ({ type, id }) => {
-    if (type !== "movie") return { meta: null };
-
-    if (id === "malluflix_direct_stream") {
-        return {
-            meta: {
-                id: "malluflix_direct_stream",
-                type: "movie",
-                name: "MalluFlix Direct Stream",
-                poster: "https://forzayt.github.io/MalluFlix_stremio_addon/images/logo.jpg",
-                description: "Direct play from urls.json",
-                background: "https://forzayt.github.io/MalluFlix_stremio_addon/images/logo.jpg"
+            if (!hasUrl) {
+                return {
+                    metas: []
+                };
             }
+
+            return {
+                metas: [
+                    {
+                        id: "malluflix_direct_stream",
+                        type: "movie",
+                        name: "Cineflow Direct Stream",
+                        poster:
+                            "https://raw.githubusercontent.com/datainterpretor/Cineflow/main/cineflow.png",
+                        description:
+                            "Direct play from urls.json"
+                    }
+                ]
+            };
+        }
+
+        // ----------------------------------------------------
+        // VALIDATE CATALOG
+        // ----------------------------------------------------
+
+        const isGenreCatalog =
+            id.startsWith("malluflix_genre_");
+
+        if (
+            type !== "movie" ||
+            (
+                ![
+                    "malluflix_catalog",
+                    "malluflix_ott",
+                    "malluflix_future"
+                ].includes(id) &&
+                !isGenreCatalog
+            )
+        ) {
+            return {
+                metas: []
+            };
+        }
+
+        // ----------------------------------------------------
+        // PAGINATION
+        // ----------------------------------------------------
+
+        const skip =
+            extra?.skip
+                ? parseInt(extra.skip)
+                : 0;
+
+        const page =
+            Math.round(skip / 20) + 1;
+
+        const today =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+        // ----------------------------------------------------
+        // BASE TMDB PARAMETERS
+        // ----------------------------------------------------
+
+        const params = {
+            api_key: TMDB_KEY,
+            with_original_language: "ml",
+            sort_by: "primary_release_date.desc"
         };
-    }
 
-    const data = await fetchWithCache(
-        `https://v3-cinemeta.strem.io/meta/movie/${id}.json`
-    );
-    return { meta: data.meta || data };
-});
+        // ----------------------------------------------------
+        // OTT RELEASES
+        // ----------------------------------------------------
 
-/* Stream Handler */
-builder.defineStreamHandler(async ({ type, id }) => {
-    if (type !== "movie" || id !== "malluflix_direct_stream") return { streams: [] };
+        if (id === "malluflix_ott") {
 
-    if (hasUrl) {
+            params["release_date.lte"] = today;
+
+            params.with_release_type = "4|5";
+
+            params.region = "IN";
+
+            params.sort_by =
+                "release_date.desc";
+        }
+
+        // ----------------------------------------------------
+        // FUTURE RELEASES
+        // ----------------------------------------------------
+
+        else if (id === "malluflix_future") {
+
+            params["primary_release_date.gte"] =
+                today;
+
+            params.sort_by =
+                "primary_release_date.asc";
+        }
+
+        // ----------------------------------------------------
+        // GENRE
+        // ----------------------------------------------------
+
+        else if (isGenreCatalog) {
+
+            const genreName =
+                id.replace(
+                    "malluflix_genre_",
+                    ""
+                );
+
+            const genreId =
+                Object.entries(GENRES)
+                    .find(
+                        ([name]) =>
+                            name
+                                .toLowerCase()
+                                .replace(/\s+/g, "_") ===
+                            genreName
+                    )?.[1];
+
+            if (genreId) {
+
+                params["primary_release_date.lte"] =
+                    today;
+
+                params.with_genres =
+                    genreId.toString();
+
+                params.sort_by =
+                    "primary_release_date.desc";
+            }
+        }
+
+        // ----------------------------------------------------
+        // DEFAULT NEW RELEASES
+        // ----------------------------------------------------
+
+        else {
+
+            params["primary_release_date.lte"] =
+                today;
+
+            params.sort_by =
+                "primary_release_date.desc";
+        }
+
+        // ----------------------------------------------------
+        // FETCH 3 TMDB PAGES
+        // ----------------------------------------------------
+
+        const promises =
+            [page, page + 1, page + 2].map(
+                p =>
+                    fetchWithCache(
+                        "https://api.themoviedb.org/3/discover/movie",
+                        {
+                            params: {
+                                ...params,
+                                page: p
+                            }
+                        }
+                    )
+            );
+
+        const responses =
+            await Promise.all(promises);
+
+        const results =
+            responses.flatMap(
+                r => r.results || []
+            );
+
+        // ----------------------------------------------------
+        // CONVERT TMDB → IMDb
+        // ----------------------------------------------------
+
+        const batchSize = 5;
+
+        const validMetas = [];
+
+        for (
+            let i = 0;
+            i < results.length;
+            i += batchSize
+        ) {
+
+            const chunk =
+                results.slice(
+                    i,
+                    i + batchSize
+                );
+
+            const chunkPromises =
+                chunk.map(
+                    async m => {
+
+                        const imdb =
+                            await tmdbToImdb(
+                                m.id
+                            );
+
+                        if (!imdb) {
+                            return null;
+                        }
+
+                        return {
+                            id: imdb,
+                            type: "movie",
+                            name: m.title,
+
+                            poster:
+                                m.poster_path
+                                    ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+                                    : null,
+
+                            description:
+                                m.overview
+                        };
+                    }
+                );
+
+            const chunkResults =
+                await Promise.all(
+                    chunkPromises
+                );
+
+            validMetas.push(
+                ...chunkResults.filter(
+                    m => m !== null
+                )
+            );
+        }
+
         return {
-            streams: [{
-                title: "MalluFlix Direct Stream",
-                url: urlsData.url
-            }]
+            metas: validMetas
         };
     }
+);
 
-    return { streams: [] };
-});
+// ============================================================
+// CINEMETA METADATA
+// ============================================================
 
-module.exports = builder.getInterface();
+builder.defineMetaHandler(
+    async ({ type, id }) => {
+
+        if (type !== "movie") {
+            return {
+                meta: null
+            };
+        }
+
+        // ----------------------------------------------------
+        // DIRECT STREAM METADATA
+        // ----------------------------------------------------
+
+        if (
+            id === "malluflix_direct_stream"
+        ) {
+
+            return {
+                meta: {
+                    id:
+                        "malluflix_direct_stream",
+
+                    type: "movie",
+
+                    name:
+                        "Cineflow Direct Stream",
+
+                    poster:
+                        "https://raw.githubusercontent.com/datainterpretor/Cineflow/main/cineflow.png",
+
+                    description:
+                        "Direct play from urls.json",
+
+                    background:
+                        "https://raw.githubusercontent.com/datainterpretor/Cineflow/main/cineflow.png"
+                }
+            };
+        }
+
+        // ----------------------------------------------------
+        // CINEMETA
+        // ----------------------------------------------------
+
+        const data =
+            await fetchWithCache(
+                `https://v3-cinemeta.strem.io/meta/movie/${id}.json`
+            );
+
+        return {
+            meta:
+                data.meta || data
+        };
+    }
+);
+
+// ============================================================
+// STREAM HANDLER
+// ============================================================
+
+builder.defineStreamHandler(
+    async ({ type, id }) => {
+
+        if (
+            type !== "movie" ||
+            id !== "malluflix_direct_stream"
+        ) {
+            return {
+                streams: []
+            };
+        }
+
+        if (hasUrl) {
+
+            return {
+                streams: [
+                    {
+                        title:
+                            "Cineflow Direct Stream",
+
+                        url:
+                            urlsData.url
+                    }
+                ]
+            };
+        }
+
+        return {
+            streams: []
+        };
+    }
+);
+
+// ============================================================
+// EXPORT
+// ============================================================
+
+module.exports =
+    builder.getInterface();
